@@ -4,8 +4,12 @@ import java.util.Scanner;
 
 public class Game {
 	Board board;
-	int width = 4;
-	int height = 4;
+	int width = 3;
+	int height = 3;
+	String up = "w";
+	String down = "s";
+	String left = "a";
+	String right = "d";
 	public void start(){
 		init();
 		gameLoop();
@@ -19,6 +23,9 @@ public class Game {
 	}
 	public void putRandom(int count){
 		int placed = 0;
+		if(checkFull()){
+			return;
+		}
 		while(placed < count){
 			int rx = (int) (Math.random()*height);
 			int ry = (int) (Math.random()*width);
@@ -40,26 +47,84 @@ public class Game {
 		}
 		return true;
 	}
+	public boolean checkForGameOver(){
+		Piece[][] p = board.getBoard();
+		if(!checkFull()){
+			return false;
+		}
+		int iEnd = 0;
+		int iStart = 0;
+		int jEnd = 0;
+		int jStart = 0;
+		char orient = '\0';
+		for(int d = 0; d < 2; d++){
+			if(d==0){
+				iStart = 0;
+				iEnd = width;
+				jStart = height-1;
+				jEnd = -1;
+				orient = 'h';
+			}else if(d==1){
+				iStart = 0;
+				iEnd = width;
+				jStart = height-1;
+				jEnd = -1;
+				orient = 'v';
+			}
+			for(int i = iStart; i!=iEnd; i += (int)(Math.signum(iEnd-iStart))){
+				int lastval = 0;
+				int[] lastloc = {-1, -1};
+				for(int j = jStart; j!=jEnd; j += (int)(Math.signum(jEnd-jStart))){
+					int currentval = 0;
+					int x = -1;
+					int y = -1;
+					if(orient == 'v'){
+						x=i;
+						y=j;
+					}else if(orient == 'h'){
+						x=j;
+						y=i;
+					}
+					currentval = p[x][y].getValue();
+					if(lastval == currentval &&  lastval != 0){
+//						p[lastloc[0]][lastloc[1]].setValue(lastval+currentval);
+//						p[x][y].setValue(0);
+						return false;
+//						lastval = 0;
+//						lastloc[0] = -1;
+//						lastloc[1] = -1;
+					}else if(currentval!=0){
+						lastval = currentval;
+						lastloc[0] = x;
+						lastloc[1] = y;
+					}
+				}
+			}
+		}
+		return true;
+	}
 	public void gameLoop(){
 		Scanner in = new Scanner(System.in);
 		while(true){
 			print();
-			if(checkFull()){
+			if(checkForGameOver()){
 				System.out.println("Game Over");
 				break;
 			}
-			System.out.println("Inputs are up, down, left, and right. Sorry.");
+			System.out.println("Inputs are wasd. q to quit");
 			String s = in.nextLine();
-			if(s.equals("up")||s.equals("u")||s.equals("w")){
+			if(s.equals(up)){
 				move('u');
-			}if(s.equals("down")||s.equals("d")){
+			}else if(s.equals(down)){
 				move('d');
-			}if(s.equals("left")||s.equals("l")){
+			}else if(s.equals(left)){
 				move('l');
-			}if(s.equals("right")||s.equals("r")){
+			}else if(s.equals(right)){
 				move('r');
-			}if(s.equals("quit")||s.equals("q")){
+			}else if(s.equals("quit")||s.equals("q")){
 				break;
+			}else{
+				continue;
 			}
 			putRandom(1);
 			System.out.println();
@@ -69,32 +134,111 @@ public class Game {
 	}
 	public void combine(char dir){
 		Piece[][] p = board.getBoard();
-		int jMod = 0;
-		int iMod = 0;
-		if(dir == 'u'){
-			iMod = 3;
-			jMod = 0;
+		int iEnd = 0;
+		int iStart = 0;
+		int jEnd = 0;
+		int jStart = 0;
+		char orient = '\0';
+		if(dir == 'r'){
+			iStart = 0;
+			iEnd = width;
+			jStart = height-1;
+			jEnd = -1;
+			orient = 'h';
+		}else if(dir == 'l'){
+			iStart = 0;
+			iEnd = width;
+			jStart = 0;
+			jEnd = height;
+			orient = 'h';
+		}else if(dir == 'd'){
+			iStart = 0;
+			iEnd = width;
+			jStart = height-1;
+			jEnd = -1;
+			orient = 'v';
+		}else if(dir == 'u'){
+			iStart = 0;
+			iEnd = width;
+			jStart = 0;
+			jEnd = height;
+			orient = 'v';
 		}
-		for(int i1 = 0; i1<width; i1++){
-			int i = Math.abs(iMod - i1);
+		
+		for(int i = iStart; i!=iEnd; i += (int)(Math.signum(iEnd-iStart))){
 			int lastval = 0;
 			int[] lastloc = {-1, -1};
-			for(int j1 = 0; j1<height; j1++){
-				int j = Math.abs(jMod - j1);
-				int currentval = p[i][j].getValue();
+			for(int j = jStart; j!=jEnd; j += (int)(Math.signum(jEnd-jStart))){
+				int currentval = 0;
+				int x = -1;
+				int y = -1;
+				if(orient == 'h'){
+					x=i;
+					y=j;
+				}else if(orient == 'v'){
+					x=j;
+					y=i;
+				}
+				currentval = p[x][y].getValue();
 				if(lastval == currentval &&  lastval != 0){
 					p[lastloc[0]][lastloc[1]].setValue(lastval+currentval);
-					p[i][j].setValue(0);
+					p[x][y].setValue(0);
 					lastval = 0;
 					lastloc[0] = -1;
 					lastloc[1] = -1;
 				}else if(currentval!=0){
 					lastval = currentval;
-					lastloc[0] = i;
-					lastloc[1] = j;
+					lastloc[0] = x;
+					lastloc[1] = y;
 				}
 			}
 		}
+/*
+ * up:
+ * 0, 0
+ * 0, 1
+ * 1, 0
+ * 1, 1
+ * 
+ * 
+ * down:
+ * 0, 1
+ * 0, 0
+ * 1, 1
+ * 1, 0
+ * 
+ * left;
+ * 0, 0
+ * 1, 0
+ * 0, 1
+ * 1, 1
+ * 
+ * right:
+ * 1, 0
+ * 0, 0
+ * 1, 1
+ * 0, 1
+ */
+//		for(int i1 = 0; i1<width; i1++){
+//			int i = Math.abs(iMod - i1);
+//			int lastval = 0;
+//			int[] lastloc = {-1, -1};
+//			for(int j1 = 0; j1<height; j1++){
+//				int j = Math.abs(jMod - j1);
+//				int currentval = p[i][j].getValue();
+//				if(lastval == currentval &&  lastval != 0){
+//					p[lastloc[0]][lastloc[1]].setValue(lastval+currentval);
+//					p[i][j].setValue(0);
+//					lastval = 0;
+//					lastloc[0] = -1;
+//					lastloc[1] = -1;
+//				}else if(currentval!=0){
+//					lastval = currentval;
+//					lastloc[0] = i;
+//					lastloc[1] = j;
+//				}
+//			}
+//		}
 			
 //		if(dir == 'u'){
 //			for(int j = width-1; j>=0; j--){
