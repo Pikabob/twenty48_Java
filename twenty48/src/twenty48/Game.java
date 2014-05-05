@@ -103,6 +103,7 @@ public class Game {
 		}
 		return true;
 	}
+	
 	public void gameLoop(){
 		Scanner in = new Scanner(System.in);
 		while(true){
@@ -113,26 +114,40 @@ public class Game {
 			}
 			System.out.println("Inputs are wasd. q to quit");
 			String s = in.nextLine();
+//			char dir;
+			boolean valid = false;
 			if(s.equals(up)){
-				move('u');
+//				dir = 'u';
+				valid = move('u');
 			}else if(s.equals(down)){
-				move('d');
+//				dir = 'd';
+				valid = move('d');
 			}else if(s.equals(left)){
-				move('l');
+//				dir = 'l';
+				valid = move('l');
 			}else if(s.equals(right)){
-				move('r');
+//				dir = 'r';
+				valid = move('r');
 			}else if(s.equals("quit")||s.equals("q")){
 				break;
 			}else{
 				continue;
 			}
-			putRandom(1);
+//			if(isValidMove()){
+//				move(dir);
+//			}
+			if(valid){
+				putRandom(1);
+			}
+			
 			System.out.println();
 			
 		}
 		
 	}
-	public void combine(char dir){
+	
+	public boolean combine(char dir){
+		boolean valid = false;
 		Piece[][] p = board.getBoard();
 		int iEnd = 0;
 		int iStart = 0;
@@ -186,13 +201,16 @@ public class Game {
 					lastval = 0;
 					lastloc[0] = -1;
 					lastloc[1] = -1;
+					valid = true;
 				}else if(currentval!=0){
 					lastval = currentval;
 					lastloc[0] = x;
 					lastloc[1] = y;
+//					valid = true;
 				}
 			}
 		}
+		return valid;
 /*
  * up:
  * 0, 0
@@ -319,8 +337,9 @@ public class Game {
 //		}
 		
 	}
-	public void shift(char dir){
+	public boolean shift(char dir){
 		Piece[][] p = board.getBoard();
+		boolean valid = false;
 		if(dir == 'u'){
 			boolean shifted = false;
 			while(!shifted){
@@ -340,6 +359,7 @@ public class Game {
 								p[i][j].setValue(0);
 								lastloc[0] = -1;
 								lastloc[1] = -1;
+								valid = true;
 							}
 						}
 					}
@@ -364,6 +384,7 @@ public class Game {
 								p[i][j].setValue(0);
 								lastloc[0] = -1;
 								lastloc[1] = -1;
+								valid = true;
 							}
 						}
 					}
@@ -388,6 +409,7 @@ public class Game {
 								p[i][j].setValue(0);
 								lastloc[0] = -1;
 								lastloc[1] = -1;
+								valid = true;
 							}
 						}
 					}
@@ -412,17 +434,22 @@ public class Game {
 								p[i][j].setValue(0);
 								lastloc[0] = -1;
 								lastloc[1] = -1;
+								valid = true;
 							}
 						}
 					}
 				}
 			}
 		}
+		return valid;
 		
 	}
-	public void move(char dir){
-		combine(dir);
-		shift(dir);
+	public boolean move(char dir){
+//		combine(dir);
+//		shift(dir);
+		boolean cvalid = combine(dir);
+		boolean svalid = shift(dir);
+		return cvalid||svalid;
 	}
 }
 
