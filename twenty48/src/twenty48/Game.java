@@ -136,6 +136,7 @@ public class Game {
 //			if(isValidMove()){
 //				move(dir);
 //			}
+			//this comment is useless<-
 			if(valid){
 				putRandom(1);
 			}
