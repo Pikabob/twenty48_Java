@@ -170,7 +170,12 @@ public class Game {
 		return true;
 	}
 	
-	
+	public boolean move(char dir){
+		moves++;
+		boolean cvalid = combine(dir);
+		boolean svalid = shift(dir);
+		return cvalid||svalid;
+	}
 	
 	public boolean combine(char dir){
 		boolean valid = false;
@@ -315,10 +320,4 @@ public class Game {
 
 	}
 	
-	public boolean move(char dir){
-		moves++;
-		boolean cvalid = combine(dir);
-		boolean svalid = shift(dir);
-		return cvalid||svalid;
-	}
 }
