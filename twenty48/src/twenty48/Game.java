@@ -2,6 +2,8 @@ package twenty48;
 
 import java.util.Scanner;
 
+
+
 public class Game {
 	int width = 4;
 	int height = 4;
