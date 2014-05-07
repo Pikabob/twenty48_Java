@@ -3,14 +3,16 @@ package twenty48;
 import java.util.Scanner;
 
 public class Game {
-	Board board;
 	int width = 4;
 	int height = 4;
 	int goal = 2048;
+	
 	String up = "w";
 	String down = "s";
 	String left = "a";
 	String right = "d";
+	
+	Board board;
 	int score;
 	int moves;
 	
