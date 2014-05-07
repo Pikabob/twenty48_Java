@@ -4,23 +4,80 @@ import java.util.Scanner;
 
 public class Game {
 	Board board;
-	int width = 3;
-	int height = 3;
+	int width = 4;
+	int height = 4;
+	int goal = 2048;
 	String up = "w";
 	String down = "s";
 	String left = "a";
 	String right = "d";
+	int score;
+	int moves;
+	
 	public void start(){
 		init();
 		gameLoop();
 	}
+	
 	public void init(){
 		board = new Board(height, width);
 		putRandom(2);
+		score = 0;
+		moves = 0;
 	}
-	public void print(){
+	
+	public void gameLoop(){
+		Scanner in = new Scanner(System.in);
+		while(true){
+			printBoard();
+			System.out.println("Moves: " + moves);
+			printScore();
+			if(checkForWin()){
+				System.out.println("You Win");
+				break;
+			}
+			if(checkForGameOver()){
+				System.out.println("Game Over");
+				break;
+			}
+			System.out.println("Inputs are wasd. q to quit. reset to reset");
+			String s = in.nextLine();
+			char dir = '\0';
+			boolean valid = false;
+			if(s.equals(up)){
+				dir = 'u';
+			}else if(s.equals(down)){
+				dir = 'd';
+			}else if(s.equals(left)){
+				dir = 'l';
+			}else if(s.equals(right)){
+				dir = 'r';
+			}else if(s.equals("quit")||s.equals("q")){
+				break;
+			}else if(s.equals("reset")){
+				init();
+			}else{
+				continue;
+			}
+			valid = move(dir);
+			if(valid){
+				putRandom(1);
+			}
+			
+			System.out.println();
+			
+		}
+		
+	}
+	
+	public void printScore(){
+		System.out.println("Score: " + score);
+	}
+	
+	public void printBoard(){
 		board.print();
 	}
+	
 	public void putRandom(int count){
 		int placed = 0;
 		if(checkFull()){
@@ -36,6 +93,7 @@ public class Game {
 			}
 		}
 	}
+	
 	public boolean checkFull(){
 		Piece[][] p = board.getBoard();
 		for(int i = 0; i < height; i++){
@@ -47,6 +105,19 @@ public class Game {
 		}
 		return true;
 	}
+	
+	public boolean checkForWin(){
+		Piece[][] b = board.getBoard();
+		for(int i = 0; i<b.length; i++){
+			for(int j = 0; j<b[i].length; j++){
+				if(b[i][j].value==goal){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public boolean checkForGameOver(){
 		Piece[][] p = board.getBoard();
 		if(!checkFull()){
@@ -99,41 +170,7 @@ public class Game {
 		return true;
 	}
 	
-	public void gameLoop(){
-		Scanner in = new Scanner(System.in);
-		while(true){
-			print();
-			if(checkForGameOver()){
-				System.out.println("Game Over");
-				break;
-			}
-			System.out.println("Inputs are wasd. q to quit");
-			String s = in.nextLine();
-			char dir;
-			boolean valid = false;
-			if(s.equals(up)){
-				dir = 'u';
-			}else if(s.equals(down)){
-				dir = 'd';
-			}else if(s.equals(left)){
-				dir = 'l';
-			}else if(s.equals(right)){
-				dir = 'r';
-			}else if(s.equals("quit")||s.equals("q")){
-				break;
-			}else{
-				continue;
-			}
-			valid = move(dir);
-			if(valid){
-				putRandom(1);
-			}
-			
-			System.out.println();
-			
-		}
-		
-	}
+	
 	
 	public boolean combine(char dir){
 		boolean valid = false;
@@ -185,7 +222,9 @@ public class Game {
 				}
 				currentval = p[x][y].getValue();
 				if(lastval == currentval &&  lastval != 0){
-					p[lastloc[0]][lastloc[1]].setValue(lastval+currentval);
+					int newval = lastval+currentval;
+					p[lastloc[0]][lastloc[1]].setValue(newval);
+					score+=newval;
 					p[x][y].setValue(0);
 					lastval = 0;
 					lastloc[0] = -1;
@@ -276,8 +315,8 @@ public class Game {
 
 	}
 	
-	
 	public boolean move(char dir){
+		moves++;
 		boolean cvalid = combine(dir);
 		boolean svalid = shift(dir);
 		return cvalid||svalid;
